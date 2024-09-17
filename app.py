@@ -7,12 +7,21 @@ import time
 app = Flask(__name__)
 
 app.config['TEMPLATES_AUTO_RELOAD'] = True
+app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+
+@app.after_request
+def add_header(response):
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '-1'
+    return response
 
 @app.route('/')
 
 def index():
     print("Rendering time at:",time.time())
-    return render_template('index.html')
+    return render_template('index.html',timestamp=time.time())
+
 
 @app.route('/search', methods=['POST'])
 def search():
