@@ -1,47 +1,38 @@
-import os
 
-# Import necessary modules from Flask
-from flask import (Flask, redirect, render_template, request,
-                   send_from_directory, url_for)
+from flask import Flask, render_template, request
+from appbackend import search_word
+import re
+import time
 
-# Initialize the Flask application. The __name__ argument helps Flask determine the root path of the application.
 app = Flask(__name__)
 
-# Define the route for the root URL. This function will be called when the root URL is accessed. 
+app.config['TEMPLATES_AUTO_RELOAD'] = True
+
 @app.route('/')
 
 def index():
-   # Log a message to the console
-   print('Request for index page received')
-   # Render the index.html template
-   return render_template('index.html')
+    print("Rendering time at:",time.time())
+    return render_template('index.html')
 
-# Define the route for the favicon
-@app.route('/favicon.ico')
-def favicon():
-    # Send the favicon.ico file from the static directory
-    return send_from_directory(os.path.join(app.root_path, 'static'),
-                               'favicon.ico', mimetype='image/vnd.microsoft.icon')
+@app.route('/search', methods=['POST'])
+def search():
+    clue = request.form['clue']
+    letters = request.form['letters']
 
-# Define the route for the /hello URL, only allowing POST requests
-@app.route('/hello', methods=['POST'])
-def hello():
-   # Get the name from the form data
-   name = request.form.get('name')
+    clue = f'^{clue}$'
+    regex = re.compile(clue, re.IGNORECASE)
 
-   if name:
-       # Log a message to the console with the provided name
-       print('Request for hello page received with name=%s' % name)
-       # Render the hello.html template with the provided name
-       return render_template('hello.html', name = name)
-   else:
-       # Log a message to the console indicating no name was provided
-       print('Request for hello page received with no name or blank name -- redirecting')
-       # Redirect to the root URL. This will trigger the index() function to get the URL. 
-       return redirect(url_for('index'))
+    letters = list(letters) if letters else None
 
-# Run the application if this script is executed directly (i.e. not being imported as a module in another script). 
-# this ensures the flask development server is started only when this script is executed directly.
+    if letters:
+        results = search_word(regex, letters)
+    else:
+        results = search_word(regex)
+
+    if results:
+        return render_template('wordleresults.html', results=results)
+    else:
+        return render_template('wordlenoresults.html')
+
 if __name__ == '__main__':
-# app.run() starts the Flask development server. 
-   app.run()
+    app.run(debug=True)

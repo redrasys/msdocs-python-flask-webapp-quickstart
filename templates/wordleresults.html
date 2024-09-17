@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+
+    <!-- Ensures the webpage is responsive and sets the viewport to match the device's width -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Search Results</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Search Results</h1>
+    <!-- Jinja2 template tag to loop through the results list passed from the Flask application -->
+     <!-- Jinja uses {{ }} to contain dynamic values -->
+        {% for result in results %}
+            {{ result }},
+        {% endfor %}
+    <a href="/">Back to Search</a>
+</body>
+</html>

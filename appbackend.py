@@ -6,14 +6,23 @@ import re
 words = {}
 
 #function to search for words based on the clue
-def search_word(clue):
+def search_word(clue, letters=None):
 
-    results = []
-    #search for the clue in the words dictionary    
-    return [key for key in words if clue.fullmatch(key)]
+    #if letters are provided, filter the words based on the letters
+   # characters = list(letters) if letters else None    
+    
+    if letters:
+        #this is a dictionary comprehension that filters the words based on the letters. all is a built-in function that 
+        # returns True if all the characters in the word are in the letters list
+        limitedwords = {key: value for key, value in words.items() if all(char in key for char in letters)}
+        return [key for key in limitedwords if clue.fullmatch(key)]
+    else:
+        #search for the clue in the words dictionary    
+        return [key for key in words if clue.fullmatch(key)]
 
 #this is same as teh below
-#    for key in words:
+#   results = []   
+#   for key in words:
 #        if clue.search(key):
 #            results.append(key)
 #    return results
@@ -24,7 +33,7 @@ def search_word(clue):
 #load the words from the json file
 filepath = os.path.join(os.path.dirname(__file__), 'templates\words.json')
 
-#check if the file exists and is a valid json file
+#check if the file exists and is a valid json file.
 try:
     with open(filepath) as f:
         words = json.load(f)
@@ -52,13 +61,20 @@ def getvalidclue():
         #handle invalid regex patterns
         except re.error as e:
             print(f'Invalid regex pattern: {e}')   
-    return None   
+    return None 
 
 #main code
 clue = getvalidclue()
 #check if a valid clue was entered
+
+letters = input("Enter the letters that need to be in the word. If none, hit enter: ")
+letters = list(letters) if letters else None  
+
 if clue is not None:
-    results = search_word(clue)
+    if letters:
+        results = search_word(clue, letters)
+    else:   
+        results = search_word(clue)
     if results:
         print(f'Results:\n{results}')        
     else:
